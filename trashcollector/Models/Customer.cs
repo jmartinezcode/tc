@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace trashcollector.Models
 {
-    public class Customers
+    public class Customer
     {
         [Key]
         public int Id { get; set; }
@@ -24,9 +25,8 @@ namespace trashcollector.Models
         [ForeignKey("Account")]
         [Display(Name = "Account Info")]
         public int AccountId { get; set; }
-        [ForeignKey("ApplicationUser")]
-        public int UserId { get; set; }
-
-
+        [ForeignKey("IdentityUser")]
+        public string UserId { get; set; }
+        public IdentityUser IdentityUser { get; set; }
     }
 }
