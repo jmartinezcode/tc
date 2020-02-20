@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using trashcollector.Data;
 
 namespace trashcollector.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200220141622_modifiedAccountToIncludeListOfWorkDays")]
+    partial class modifiedAccountToIncludeListOfWorkDays
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,15 +50,22 @@ namespace trashcollector.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "43bb9c4e-02d2-47bd-a47e-6918745362ba",
-                            ConcurrencyStamp = "12956abd-1114-48d7-b934-1f26e5e9677a",
+                            Id = "39702bc7-86b6-4484-8504-99cc28025b2f",
+                            ConcurrencyStamp = "63202b9c-c456-417c-8db5-6739d96847c0",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "231c29d0-a917-4c9c-bc2b-db7eae62c913",
+                            ConcurrencyStamp = "1f7dac78-dac8-41ac-87a5-7338211f6012",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
-                            Id = "808f6e22-a494-41bd-92db-6404968329b4",
-                            ConcurrencyStamp = "465c7612-4ae4-4cc7-b801-239f508f7104",
+                            Id = "bf65c6db-9267-4454-9748-6928834e712a",
+                            ConcurrencyStamp = "aa045347-45cb-4fee-a9c2-53c7d73dfff3",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         });

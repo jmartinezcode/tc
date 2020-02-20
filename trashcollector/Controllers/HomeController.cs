@@ -29,13 +29,13 @@ namespace trashcollector.Controllers
             }
             else if (User.IsInRole("Customer"))
             {
-                return Redirect("./Customers/Index");
+                return RedirectToAction("Index", "Customers");
             }
             else if (User.IsInRole("Employee"))
             {
-                return Redirect("./Employees/Index");
+                return RedirectToAction("Index, Employees");
             }
-            return View();            
+            return Redirect("./Identity/Account/Login");
         }
 
         public IActionResult Privacy()

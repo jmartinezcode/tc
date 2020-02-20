@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,6 +24,14 @@ namespace trashcollector.Models
         public DateTime StartSuspension { get; set; }
         [Display(Name = "End of Suspension")]
         public DateTime EndSuspension { get; set; }
+        [NotMapped]
+        public SelectList WorkDays
+        {
+            get
+            {
+                return new SelectList(new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday });
+            }
+        }
 
     }
 }
