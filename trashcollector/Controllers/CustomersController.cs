@@ -34,7 +34,7 @@ namespace trashcollector.Controllers
             viewModel.Address = _context.Addresses.FirstOrDefault(a => a.Id == viewModel.Customer.AddressId);
             viewModel.Account = _context.Accounts.FirstOrDefault(a => a.Id == viewModel.Customer.AccountId);
             
-            return View(viewModel);
+            return View();
         }
         public IActionResult Create()
         {
@@ -65,7 +65,7 @@ namespace trashcollector.Controllers
                 _context.Customers.Add(customer);
 
                 _context.SaveChanges();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Edit));
             }
             return View(viewModel);
         }
@@ -89,21 +89,30 @@ namespace trashcollector.Controllers
             return View(viewModel);
         }
 
-
-        //public async Task<IActionResult> Index()
-        //{
-        //    var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        //    if(userId is null)
-        //    {
-        //        return RedirectToAction(nameof(Create));
-        //    }
-        //    var viewModel = new CustomerAddressAccountViewModel();
-        //    viewModel.Customer = _context.Customers.FirstOrDefault(c => c.UserId == userId);
-        //    viewModel.Address = _context.Addresses.FirstOrDefault(a => a.Id == viewModel.Customer.Id);
-        //    viewModel.Account = _context.Accounts.FirstOrDefault(a => a.Id == viewModel.Customer.Id);
-
-        //    return View(viewModel);
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(CustomerAddressAccountViewModel viewModel)
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return NotFound();
+            }
+            var customerFromDb = _context.Customers.FirstOrDefault(a => a.UserId == userId);
+            if (customerFromDb == null)
+            {
+                return NotFound();
+            }
+            customerFromDb = viewModel.Customer;
+            var accountFromDb = _context.Accounts.FirstOrDefault(a => a.Id == customerFromDb.AccountId);
+            accountFromDb.PickupDay = viewModel.Account.PickupDay;
+            accountFromDb.OneTimePickup = viewModel.Account.OneTimePickup;
+            accountFromDb.StartSuspension = viewModel.Account.StartSuspension;
+            accountFromDb.EndSuspension = viewModel.Account.EndSuspension;
+            _context.Accounts.Update(accountFromDb);
+            _context.SaveChanges();
+            return View(viewModel);
+        }
 
         //// GET: Customers1/Details/5
         //public async Task<IActionResult> Details(int? id)
@@ -125,17 +134,7 @@ namespace trashcollector.Controllers
         //    return View(customer);
         //}
 
-        //// GET: Customers1/Create
-        //public IActionResult Create()
-        //{
-        //    if (User.IsInRole("Customer") && User.Identity.IsAuthenticated)
-        //    {
-        //        var viewModel = new CustomerAddressAccountViewModel { Customer = new Customer(), Address = new Address(), Account = new Account() };
-        //        return View(viewModel);
-        //    }
-        //    return RedirectToAction(nameof(Create));
-        //}
-
+ 
         //// POST: Customers1/Create
         //// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         //// more details see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -152,24 +151,6 @@ namespace trashcollector.Controllers
         //    return View(customerAddressAccountViewModel);
         //}
 
-
-
-        //// GET: Customers1/Edit/5
-        //public async Task<IActionResult> Edit(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var customer = await _context.Customers.FindAsync(id);
-        //    if (customer == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(customer);
-        //}
 
         //// POST: Customers1/Edit/5
         //// To protect from overposting attacks, please enable the specific properties you want to bind to, for 

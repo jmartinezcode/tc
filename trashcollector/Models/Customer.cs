@@ -16,7 +16,7 @@ namespace trashcollector.Models
         [Display(Name = "First Name")]
         public string FirstName { get; set; }
         [Required]
-        [Display(Name = "Lat Name")]
+        [Display(Name = "Last Name")]
         public string LastName { get; set; }
         [ForeignKey("Address")]
         [Display(Name = "Address")]
