@@ -25,8 +25,7 @@ namespace trashcollector.Controllers
             var viewModel = new CustomerAddressAccountViewModel();
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             
-            var customer = _context.Customers
-                .FirstOrDefault(m => m.UserId == userId);
+            var customer = _context.Customers.FirstOrDefault(c => c.UserId == userId);
             if (customer is null)
             {
                 return RedirectToAction(nameof(Create));
@@ -39,25 +38,55 @@ namespace trashcollector.Controllers
         }
         public IActionResult Create()
         {
-            if (User.IsInRole("Customer"))
-            {
-                var viewModel = new CustomerAddressAccountViewModel { Customer = new Customer(), Address = new Address(), Account = new Account() };
-                return View(viewModel);
-            }
-            return RedirectToAction(nameof(Create));
+            return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CustomerAddressAccountViewModel customerAddressAccountViewModel)
+        public IActionResult Create(CustomerAddressAccountViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(customerAddressAccountViewModel);
+                var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var customer= viewModel.Customer;
+                var address = viewModel.Address;
+                var account = viewModel.Account;
+
+                _context.Addresses.Add(address);
+                _context.Accounts.Add(account);
                 _context.SaveChanges();
-                return RedirectToAction(nameof(Create));
+
+                customer.AddressId = _context.Addresses.FirstOrDefault(a => a.Equals(address)).Id;
+                customer.UserId = userId;
+                customer.AccountId = _context.Accounts.FirstOrDefault(a => a.Equals(account)).Id;
+
+                
+                
+                _context.Customers.Add(customer);
+
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
             }
-            return View(customerAddressAccountViewModel);
+            return View(viewModel);
+        }
+        public IActionResult Edit()
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return NotFound();
+            }
+
+            var customer = _context.Customers.FirstOrDefault(a => a.UserId == userId);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            var viewModel = new CustomerAddressAccountViewModel();
+            viewModel.Customer = customer;
+            viewModel.Address = _context.Addresses.FirstOrDefault(a => a.Id == viewModel.Customer.AddressId);
+            viewModel.Account = _context.Accounts.FirstOrDefault(a => a.Id == viewModel.Customer.AccountId);
+            return View(viewModel);
         }
 
 

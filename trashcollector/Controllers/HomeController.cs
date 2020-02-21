@@ -35,7 +35,7 @@ namespace trashcollector.Controllers
             {
                 return RedirectToAction("Index, Employees");
             }
-            return Redirect("./Identity/Account/Login");
+            return View();
         }
 
         public IActionResult Privacy()
