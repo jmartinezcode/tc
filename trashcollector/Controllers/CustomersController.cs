@@ -34,7 +34,7 @@ namespace trashcollector.Controllers
             viewModel.Address = _context.Addresses.FirstOrDefault(a => a.Id == viewModel.Customer.AddressId);
             viewModel.Account = _context.Accounts.FirstOrDefault(a => a.Id == viewModel.Customer.AccountId);
             
-            return View();
+            return RedirectToAction(nameof(Edit));
         }
         public IActionResult Create()
         {
@@ -103,7 +103,7 @@ namespace trashcollector.Controllers
             {
                 return NotFound();
             }
-            customerFromDb = viewModel.Customer;
+            //customerFromDb = viewModel.Customer;
             var accountFromDb = _context.Accounts.FirstOrDefault(a => a.Id == customerFromDb.AccountId);
             accountFromDb.PickupDay = viewModel.Account.PickupDay;
             accountFromDb.OneTimePickup = viewModel.Account.OneTimePickup;
