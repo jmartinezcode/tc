@@ -107,11 +107,15 @@ namespace trashcollector.Controllers
             var accountFromDb = _context.Accounts.FirstOrDefault(a => a.Id == customerFromDb.AccountId);
             accountFromDb.PickupDay = viewModel.Account.PickupDay;
             accountFromDb.OneTimePickup = viewModel.Account.OneTimePickup;
+            if (viewModel.Account.StartSuspension < DateTime.Today)
+            {
+                viewModel.Account.StartSuspension = DateTime.Today;
+            }
             accountFromDb.StartSuspension = viewModel.Account.StartSuspension;
             accountFromDb.EndSuspension = viewModel.Account.EndSuspension;
             _context.Accounts.Update(accountFromDb);
             _context.SaveChanges();
-            return View(viewModel);
+            return RedirectToAction(nameof(Edit));
         }
 
         //// GET: Customers1/Details/5

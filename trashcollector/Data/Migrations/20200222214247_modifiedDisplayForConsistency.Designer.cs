@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using trashcollector.Data;
 
 namespace trashcollector.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200222214247_modifiedDisplayForConsistency")]
+    partial class modifiedDisplayForConsistency
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,15 +50,15 @@ namespace trashcollector.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "de3b7f52-ba06-424f-ae6b-ebd68dcc4af6",
-                            ConcurrencyStamp = "c8995b05-2af1-45cb-8a0f-5483eb5865d0",
+                            Id = "6e8cbdcc-a908-428d-aa0f-347291ef4860",
+                            ConcurrencyStamp = "7e1e420b-91fb-49c6-af4a-2f72955e56c2",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
-                            Id = "92397d9b-ba42-47bf-8f86-e99c7607890d",
-                            ConcurrencyStamp = "9f2bdbcb-3f5f-40ed-bf0b-defc22abf17d",
+                            Id = "f1409c0b-8b3f-4746-9d19-c8bf24f653f9",
+                            ConcurrencyStamp = "bace3fb2-d448-4686-88dc-81a5c687b187",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         });
@@ -241,7 +243,7 @@ namespace trashcollector.Data.Migrations
                     b.Property<double>("Balance")
                         .HasColumnType("float");
 
-                    b.Property<DateTime?>("EndSuspension")
+                    b.Property<DateTime>("EndSuspension")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsSuspended")
@@ -250,13 +252,13 @@ namespace trashcollector.Data.Migrations
                     b.Property<DateTime>("LastPickupDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("OneTimePickup")
+                    b.Property<DateTime>("OneTimePickup")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("PickupDay")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("StartSuspension")
+                    b.Property<DateTime>("StartSuspension")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
