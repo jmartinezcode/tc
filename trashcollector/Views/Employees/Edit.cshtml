@@ -4,10 +4,20 @@
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+    <div class="row">
+        <div class="col">
+            <h1>Welcome, @Html.DisplayFor(model => model.Employee.FirstName)</h1>
 
-<h1>Welcome, @Html.DisplayFor(model => model.Employee.FirstName)</h1>
+            <h4>Here are today's pickups for the @Html.DisplayFor(model => model.Employee.ZipCode) area</h4>
+        </div>
+        <div class="col">
+            <select asp-action="Edit" class="col form form-control" asp-items="new SelectList(new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday })"></select>
+            <div class="form-group">
+                <input type="submit" value="Save changes" class="btn btn-outline-primary btn-sm" style="margin-top: 20px" />
+            </div>
+        </div>
+    </div>
 
-<h4>Here are today's pickups for the @Html.DisplayFor(model => model.Employee.ZipCode) area</h4>
 @*<hr />*@
 
 @*<div class="row">
@@ -67,13 +77,13 @@
                     @Html.DisplayFor(modelItem => item.LastName)
                 </td>  
                 <td>
-                    @Html.DisplayFor(modelItem => item.Address.Street)
+                    <a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Address.Street)</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Account.LastPickupDate)
                 </td>
                 <td>
-                    @if (item.Account.LastPickupDate != DateTime.Today)
+                    @if (item.Account.LastPickupDate != DateTime.Today && item.Account.PickupDay == DateTime.Today.DayOfWeek)
                     {
                         <a class="btn btn-outline-primary btn-sm" asp-action="ConfirmPickup" asp-route-id="@item.Id">
                             Confirm Pickup

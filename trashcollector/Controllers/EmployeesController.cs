@@ -31,21 +31,26 @@ namespace trashcollector.Controllers
             {
                 return RedirectToAction(nameof(Create));
             }
-            //var customers = _context.Customers.Where(c => c.Address.zipCode == employee.ZipCode).ToList();
-            //var filteredCustomers = new List<Customer>();
-            //foreach (var customer in customers)
-            //{
-            //    var account = _context.Accounts.FirstOrDefault(a => a.Id == customer.AccountId);
-            //    if (!account.IsSuspended && DateTime.Today.DayOfWeek == account.PickupDay)
-            //    {
-            //        filteredCustomers.Add(customer);
-            //    }
-            //    else if (DateTime.Today == account.OneTimePickup)
-            //    {
-            //        filteredCustomers.Add(customer);
-            //    }
-            //}
+          
             return RedirectToAction(nameof(Edit));
+        }
+        public IActionResult Filter()
+        {
+            var viewModel = new EmployeeViewModel();
+            var customers = _context.Customers
+                                .Include(c => c.Address)
+                                .Include(c => c.Account)
+                                .ToList();
+            viewModel.Customers = customers;
+            return View(viewModel);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Filter(EmployeeViewModel viewModel)
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var employee = _context.Employees.FirstOrDefault(e => e.UserId == userId);
+            return View(viewModel);
         }
         //public List<Customer> FilterTodayCustomers(EmployeeViewModel employee)
         //{
@@ -69,9 +74,11 @@ namespace trashcollector.Controllers
          // GET: Employees/Details
         public IActionResult Details(int? id)
         {
+            var viewModel = new EmployeeViewModel();
             var customer = _context.Customers.FirstOrDefault(c => c.Id == id);
-            customer.Address = _context.Addresses.FirstOrDefault(a => a.Id == customer.AddressId);
-            return View(customer);      
+            viewModel.Address = _context.Addresses.FirstOrDefault(a => a.Id == customer.AddressId);
+            viewModel.Customer = customer;
+            return View(viewModel);      
         }
 
         // GET: Employees/Create
@@ -113,11 +120,14 @@ namespace trashcollector.Controllers
             var viewModel = new EmployeeViewModel();
 
             var customers = _context.Customers
-                .Include(c => c.Address)
-                .Include(c => c.Account)
-                .ToList();
+                                .Include(c => c.Address)
+                                .Include(c => c.Account)
+                                .ToList();
 
-            customers = customers.Where(c => c.Address.zipCode == employee.ZipCode && (c.Account.PickupDay == DateTime.Today.DayOfWeek || c.Account.OneTimePickup == DateTime.Today)).ToList();
+            customers = customers.Where(c => c.Address.zipCode == employee.ZipCode && 
+                                    c.Account.IsSuspended == false &&
+                                    (c.Account.PickupDay == DateTime.Today.DayOfWeek ||
+                                     c.Account.OneTimePickup == DateTime.Today)).ToList();
                                        
             viewModel.Employee = employee;
             viewModel.Customers = customers;            
