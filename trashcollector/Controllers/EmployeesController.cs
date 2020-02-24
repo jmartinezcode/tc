@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -20,10 +21,21 @@ namespace trashcollector.Controllers
         }
 
         // GET: Employees
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var applicationDbContext = _context.Employees.Include(e => e.IdentityUser);
-            return View(await applicationDbContext.ToListAsync());
+            //var viewModel = new EmployeeViewModel();
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var employee = _context.Employees.FirstOrDefault(e => e.UserId == userId);
+            if (employee is null)
+            {
+                return RedirectToAction(nameof(Create));
+            }
+            //viewModel.Customer = customer;
+            //viewModel.Address = _context.Addresses.FirstOrDefault(a => a.Id == viewModel.Customer.AddressId);
+            //viewModel.Account = _context.Accounts.FirstOrDefault(a => a.Id == viewModel.Customer.AccountId);
+
+            return RedirectToAction(nameof(Edit));
         }
 
         // GET: Employees/Details/5
@@ -48,7 +60,6 @@ namespace trashcollector.Controllers
         // GET: Employees/Create
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
@@ -57,33 +68,39 @@ namespace trashcollector.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,ZipCode,UserId")] Employee employee)
+        public IActionResult Create(EmployeeViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
+                var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var employee = viewModel.Employee;
+                employee.UserId = userId;
                 _context.Add(employee);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", employee.UserId);
-            return View(employee);
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Edit));
+            }            
+            return View(viewModel);
         }
 
         // GET: Employees/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public IActionResult Edit()
         {
-            if (id == null)
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
             {
                 return NotFound();
-            }
-
-            var employee = await _context.Employees.FindAsync(id);
+            }            
+            var employee = _context.Employees.FirstOrDefault(e => e.UserId == userId);
             if (employee == null)
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", employee.UserId);
-            return View(employee);
+            var viewModel = new EmployeeViewModel();
+            
+            var customers = _context.Customers.Where(c => c.Address.zipCode == employee.ZipCode).ToList();
+            viewModel.Employee = employee;
+            viewModel.Customers = customers;
+            return View(viewModel);
         }
 
         // POST: Employees/Edit/5
@@ -121,37 +138,6 @@ namespace trashcollector.Controllers
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", employee.UserId);
             return View(employee);
         }
-
-        // GET: Employees/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var employee = await _context.Employees
-                .Include(e => e.IdentityUser)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
-
-            return View(employee);
-        }
-
-        // POST: Employees/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var employee = await _context.Employees.FindAsync(id);
-            _context.Employees.Remove(employee);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
         private bool EmployeeExists(int id)
         {
             return _context.Employees.Any(e => e.Id == id);

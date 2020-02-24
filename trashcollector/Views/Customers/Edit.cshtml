@@ -64,7 +64,7 @@
             {
                 <tr class="table-success">
                     <th scope="row">
-                        @Html.DisplayNameFor(model => model.Account.Balance):
+                        Account Balance:
                     </th>
                     <td>
                         $ @Html.DisplayFor(model => model.Account.Balance)
@@ -75,7 +75,7 @@
             {
                 <tr class="table-warning">
                     <th scope="row">
-                        @Html.DisplayNameFor(model => model.Account.Balance):
+                        Account Balance:
                     </th>
                     <td>
                         $ @Html.DisplayFor(model => model.Account.Balance)
@@ -99,23 +99,27 @@
                     @Html.DisplayFor(model => model.Account.PickupDay)
                 </td>
             </tr>
-            <tr>
-                <th scope="row">
-                    @Html.DisplayNameFor(model => model.Account.OneTimePickup):
-                </th>
-                <td>
-                    @Html.DisplayFor(model => model.Account.OneTimePickup)
-                </td>
-            </tr>
+            @if (DateTime.Today < Model.Account.OneTimePickup)
+            {
+                <tr>
+                    <th scope="row">
+                        @Html.DisplayNameFor(model => model.Account.OneTimePickup):
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.Account.OneTimePickup)
+                    </td>
+                </tr>
+            }
             <tr>
                 <th scope="row">
                     Status of Service:
                 </th>
-                
-                @if (DateTime.Today > Model.Account.EndSuspension)
+
+                @if (DateTime.Today > Model.Account.EndSuspension || Model.Account.EndSuspension is null)
                 {
                     <td class="text-sucess">Account Active</td>
-                } else if (DateTime.Today >= Model.Account.StartSuspension && DateTime.Today <= Model.Account.EndSuspension)
+                }
+                else if (DateTime.Today >= Model.Account.StartSuspension && DateTime.Today <= Model.Account.EndSuspension)
                 {
                     <td class="text-danger">Account Suspended</td>
                 }
@@ -123,12 +127,62 @@
                 {
                     <td class="text-warning">Future Suspension Scheduled</td>
                 }
-
-
             </tr>
+            @if (Model.Account.IsSuspended)
+            {
+                <tr class="table-danger">
+                    <th scope="row">
+                        Suspended Service Started:
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.Account.StartSuspension)
+                    </td>
+                </tr>
+            }
+            else if (Model.Account.StartSuspension > DateTime.Today)
+            {
+                <tr class="table-warning">
+                    <th scope="row">
+                        Suspended Service Begins:
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.Account.StartSuspension)
+                    </td>
+                </tr>
+            }
+            else
+            {
+
+            }
+            @if (Model.Account.IsSuspended)
+            {
+                <tr class="table-danger">
+                    <th scope="row">
+                        Suspended Service Ends:
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.Account.EndSuspension)
+                    </td>
+                </tr>
+            }
+            else if (Model.Account.StartSuspension > DateTime.Today)
+            {
+                <tr class="table-warning">
+                    <th scope="row">
+                        Suspended Service Ends:
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.Account.EndSuspension)
+                    </td>
+                </tr>
+            }
+            else
+            {
+
+            }
         </table>
     </div>
-    <di class="col-md-4">
+    <di class="col-md-6">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="row form-group" style="margin-bottom: 16px">
@@ -157,8 +211,8 @@
                 <input type="submit" value="Save changes" class="btn btn-outline-primary btn-sm" style="margin-top: 20px" />
             </div>
         </form>
-    </div>
 </div>
+
 
 <div>
     <a asp-action="Index">Back to List</a>

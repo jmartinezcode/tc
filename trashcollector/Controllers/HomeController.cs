@@ -33,7 +33,7 @@ namespace trashcollector.Controllers
             }
             else if (User.IsInRole("Employee"))
             {
-                return RedirectToAction("Index, Employees");
+                return RedirectToAction("Index", "Employees");
             }
             return View();
         }
