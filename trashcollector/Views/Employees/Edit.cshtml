@@ -7,10 +7,10 @@
 
 <h1>Welcome, @Html.DisplayFor(model => model.Employee.FirstName)</h1>
 
-<h4>You're responsible for the @Html.DisplayFor(model => model.Employee.ZipCode) area.</h4>
-<hr />
-<h5>Here are today's pick ups:</h5>
-<div class="row">
+<h4>Here are today's pickups for the @Html.DisplayFor(model => model.Employee.ZipCode) area</h4>
+@*<hr />*@
+
+@*<div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -35,7 +35,7 @@
             </div>
         </form>
     </div>
-</div>
+</div>*@
 <table class="table">
     <thead>
         <tr>
@@ -55,6 +55,7 @@
             <th>Confirm Pickup</th>
         </tr>
     </thead>
+    
     <tbody>
         @foreach (var item in Model.Customers)
         {
@@ -69,10 +70,16 @@
                     @Html.DisplayFor(modelItem => item.Address.Street)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.AccountId)
+                    @Html.DisplayFor(modelItem => item.Account.LastPickupDate)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>                    
+                    @if (item.Account.LastPickupDate != DateTime.Today)
+                    {
+                        <a class="btn btn-outline-primary btn-sm" asp-action="ConfirmPickup" asp-route-id="@item.Id">
+                            Confirm Pickup
+                        </a>
+                    }
+
                 </td>
             </tr>
         }

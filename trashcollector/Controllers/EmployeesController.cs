@@ -23,7 +23,7 @@ namespace trashcollector.Controllers
         // GET: Employees
         public IActionResult Index()
         {
-            var viewModel = new EmployeeViewModel();
+            //var viewModel = new EmployeeViewModel();
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var employee = _context.Employees.FirstOrDefault(e => e.UserId == userId);
@@ -31,33 +31,48 @@ namespace trashcollector.Controllers
             {
                 return RedirectToAction(nameof(Create));
             }
-            var customers = _context.Customers.Select(c => c);
-            var areaCustomers = customers.Where(c => c.Address.zipCode == employee.ZipCode).ToList();
-            //viewModel.Customers = customer;
-            viewModel.Address = _context.Addresses.FirstOrDefault(a => a.Id == viewModel.Customer.AddressId);
-            viewModel.Account = _context.Accounts.FirstOrDefault(a => a.Id == viewModel.Customer.AccountId);
-
+            //var customers = _context.Customers.Where(c => c.Address.zipCode == employee.ZipCode).ToList();
+            //var filteredCustomers = new List<Customer>();
+            //foreach (var customer in customers)
+            //{
+            //    var account = _context.Accounts.FirstOrDefault(a => a.Id == customer.AccountId);
+            //    if (!account.IsSuspended && DateTime.Today.DayOfWeek == account.PickupDay)
+            //    {
+            //        filteredCustomers.Add(customer);
+            //    }
+            //    else if (DateTime.Today == account.OneTimePickup)
+            //    {
+            //        filteredCustomers.Add(customer);
+            //    }
+            //}
             return RedirectToAction(nameof(Edit));
         }
-
-        //// GET: Employees/Details/5
-        //public async Task<IActionResult> Details(int? id)
+        //public List<Customer> FilterTodayCustomers(EmployeeViewModel employee)
         //{
-        //    if (id == null)
+        //    var customers = _context.Customers.Where(c => c.Address.zipCode == employee.Employee.ZipCode).ToList();
+        //    var filteredCustomers = new List<Customer>(); 
+        //    foreach (var customer in customers)
         //    {
-        //        return NotFound();
+        //        var account = _context.Accounts.FirstOrDefault(a => a.Id == customer.AccountId);
+        //        if (!account.IsSuspended && DateTime.Today.DayOfWeek == account.PickupDay)
+        //        {
+        //            filteredCustomers.Add(customer);
+        //        }
+        //        else if (DateTime.Today == account.OneTimePickup)
+        //        {
+        //            filteredCustomers.Add(customer);
+        //        }
         //    }
-
-        //    var employee = await _context.Employees
-        //        .Include(e => e.IdentityUser)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (employee == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(employee);
+        //    return filteredCustomers;
         //}
+
+         // GET: Employees/Details
+        public IActionResult Details(int? id)
+        {
+            var customer = _context.Customers.FirstOrDefault(c => c.Id == id);
+            customer.Address = _context.Addresses.FirstOrDefault(a => a.Id == customer.AddressId);
+            return View(customer);      
+        }
 
         // GET: Employees/Create
         public IActionResult Create()
@@ -65,9 +80,7 @@ namespace trashcollector.Controllers
             return View();
         }
 
-        // POST: Employees/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Employees/Create        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(EmployeeViewModel viewModel)
@@ -79,9 +92,9 @@ namespace trashcollector.Controllers
                 employee.UserId = userId;
                 _context.Add(employee);
                 _context.SaveChanges();
-                return RedirectToAction(nameof(Edit));
+                return RedirectToAction(nameof(Index));
             }            
-            return View(viewModel);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Employees/Edit/5
@@ -98,59 +111,35 @@ namespace trashcollector.Controllers
                 return NotFound();
             }
             var viewModel = new EmployeeViewModel();
-            
-            var customers = _context.Customers.Where(c => c.Address.zipCode == employee.ZipCode).Include(c => c.Address).ToList();
-            //var account = _context.Accounts.Include(a => a.LastPickupDate).FirstOrDefault(a => a.Id == viewModel.Account.Id);
-            //viewModel.Account.LastPickupDate = account;
+
+            var customers = _context.Customers
+                .Include(c => c.Address)
+                .Include(c => c.Account)
+                .ToList();
+
+            customers = customers.Where(c => c.Address.zipCode == employee.ZipCode && (c.Account.PickupDay == DateTime.Today.DayOfWeek || c.Account.OneTimePickup == DateTime.Today)).ToList();
+                                       
             viewModel.Employee = employee;
-            viewModel.Customers = customers;
+            viewModel.Customers = customers;            
             
             return View(viewModel);
         }
         public IActionResult ConfirmPickup(int? id)
         {
-            var account = _context.Accounts.FirstOrDefault(a => a.Id == id);
+            var customer = _context.Customers.FirstOrDefault(c=> c.Id == id);
+            var account = _context.Accounts.FirstOrDefault(a => a.Id == customer.AccountId);
             account.Balance += 10;
             account.LastPickupDate = DateTime.Today;
-            _context.Accounts.Update(account);
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Employees/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Employees/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FirstName,LastName,ZipCode,UserId")] Employee employee)
+        public IActionResult Edit(EmployeeViewModel employee)
         {
-            if (id != employee.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(employee);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!EmployeeExists(employee.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", employee.UserId);
-            return View(employee);
+            return RedirectToAction(nameof(Index));
         }
         private bool EmployeeExists(int id)
         {

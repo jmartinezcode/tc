@@ -25,7 +25,8 @@ namespace trashcollector.Models
         [ForeignKey("Account")]
         [Display(Name = "Account Info")]
         public int AccountId { get; set; }
-        [ForeignKey("IdentityUser")]
+        public Account Account { get; set; }
+        [ForeignKey("IdentityUser")]        
         public string UserId { get; set; }
         public IdentityUser IdentityUser { get; set; }
     }
