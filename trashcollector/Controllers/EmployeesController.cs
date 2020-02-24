@@ -23,7 +23,7 @@ namespace trashcollector.Controllers
         // GET: Employees
         public IActionResult Index()
         {
-            //var viewModel = new EmployeeViewModel();
+            var viewModel = new EmployeeViewModel();
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var employee = _context.Employees.FirstOrDefault(e => e.UserId == userId);
@@ -31,31 +31,33 @@ namespace trashcollector.Controllers
             {
                 return RedirectToAction(nameof(Create));
             }
-            //viewModel.Customer = customer;
-            //viewModel.Address = _context.Addresses.FirstOrDefault(a => a.Id == viewModel.Customer.AddressId);
-            //viewModel.Account = _context.Accounts.FirstOrDefault(a => a.Id == viewModel.Customer.AccountId);
+            var customers = _context.Customers.Select(c => c);
+            var areaCustomers = customers.Where(c => c.Address.zipCode == employee.ZipCode).ToList();
+            //viewModel.Customers = customer;
+            viewModel.Address = _context.Addresses.FirstOrDefault(a => a.Id == viewModel.Customer.AddressId);
+            viewModel.Account = _context.Accounts.FirstOrDefault(a => a.Id == viewModel.Customer.AccountId);
 
             return RedirectToAction(nameof(Edit));
         }
 
-        // GET: Employees/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //// GET: Employees/Details/5
+        //public async Task<IActionResult> Details(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var employee = await _context.Employees
-                .Include(e => e.IdentityUser)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
+        //    var employee = await _context.Employees
+        //        .Include(e => e.IdentityUser)
+        //        .FirstOrDefaultAsync(m => m.Id == id);
+        //    if (employee == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return View(employee);
-        }
+        //    return View(employee);
+        //}
 
         // GET: Employees/Create
         public IActionResult Create()
@@ -97,10 +99,22 @@ namespace trashcollector.Controllers
             }
             var viewModel = new EmployeeViewModel();
             
-            var customers = _context.Customers.Where(c => c.Address.zipCode == employee.ZipCode).ToList();
+            var customers = _context.Customers.Where(c => c.Address.zipCode == employee.ZipCode).Include(c => c.Address).ToList();
+            //var account = _context.Accounts.Include(a => a.LastPickupDate).FirstOrDefault(a => a.Id == viewModel.Account.Id);
+            //viewModel.Account.LastPickupDate = account;
             viewModel.Employee = employee;
             viewModel.Customers = customers;
+            
             return View(viewModel);
+        }
+        public IActionResult ConfirmPickup(int? id)
+        {
+            var account = _context.Accounts.FirstOrDefault(a => a.Id == id);
+            account.Balance += 10;
+            account.LastPickupDate = DateTime.Today;
+            _context.Accounts.Update(account);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Employees/Edit/5
