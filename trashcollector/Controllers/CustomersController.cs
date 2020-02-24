@@ -107,9 +107,10 @@ namespace trashcollector.Controllers
             var accountFromDb = _context.Accounts.FirstOrDefault(a => a.Id == customerFromDb.AccountId);
             accountFromDb.PickupDay = viewModel.Account.PickupDay;
             accountFromDb.OneTimePickup = viewModel.Account.OneTimePickup;
-            if (viewModel.Account.StartSuspension < DateTime.Today)
+            accountFromDb.IsSuspended = SetIsSuspended(viewModel);
+            if (viewModel.Account.StartSuspension < accountFromDb.LastPickupDate)
             {
-                viewModel.Account.StartSuspension = DateTime.Today;
+                viewModel.Account.StartSuspension = accountFromDb.LastPickupDate;
             }
             accountFromDb.StartSuspension = viewModel.Account.StartSuspension;
             accountFromDb.EndSuspension = viewModel.Account.EndSuspension;
@@ -117,7 +118,14 @@ namespace trashcollector.Controllers
             _context.SaveChanges();
             return RedirectToAction(nameof(Edit));
         }
-
+        public bool SetIsSuspended(CustomerAddressAccountViewModel viewModel)
+        {
+            if (DateTime.Today >= viewModel.Account.StartSuspension && DateTime.Today <= viewModel.Account.EndSuspension)
+            {
+                return true;
+            }
+            return false;
+        }
         //// GET: Customers1/Details/5
         //public async Task<IActionResult> Details(int? id)
         //{

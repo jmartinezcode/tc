@@ -10,7 +10,7 @@
 <h4>Update Preferences</h4>
 <hr />
 <div class="row">
-    <div class="col">
+    <div class="col">        
         <table class="table table-hover">
             <tr>
                 <th scope="row">
@@ -82,7 +82,8 @@
                     </td>
                 </tr>
             }
-            <tr> @* Add logic to display new customer/no pickups if date == 1/1/1001 *@
+            <tr>
+                @* Add logic to display new customer/no pickups if date == 1/1/1001 *@
                 <th scope="row">
                     @Html.DisplayNameFor(model => model.Account.LastPickupDate):
                 </th>
@@ -98,21 +99,62 @@
                     @Html.DisplayFor(model => model.Account.PickupDay)
                 </td>
             </tr>
+            <tr>
+                <th scope="row">
+                    @Html.DisplayNameFor(model => model.Account.OneTimePickup):
+                </th>
+                <td>
+                    @Html.DisplayFor(model => model.Account.OneTimePickup)
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">
+                    Status of Service:
+                </th>
+                
+                @if (DateTime.Today > Model.Account.EndSuspension)
+                {
+                    <td class="text-sucess">Account Active</td>
+                } else if (DateTime.Today >= Model.Account.StartSuspension && DateTime.Today <= Model.Account.EndSuspension)
+                {
+                    <td class="text-danger">Account Suspended</td>
+                }
+                else
+                {
+                    <td class="text-warning">Future Suspension Scheduled</td>
+                }
+
+
+            </tr>
         </table>
     </div>
-    <div class="col-md-4">
+    <di class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            
-            <div class="form-inline">
-                <div class="form-group">
-                    <label asp-for="Account.PickupDay" class="control-label" style="padding-right: 20px"></label>
-                    <select asp-for="Account.PickupDay" class="form-control" asp-items="new SelectList(new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday })"></select>
-                </div>
+            <div class="row form-group" style="margin-bottom: 16px">
+                <label asp-for="Account.PickupDay" class="col form control-label"></label>             
+                <select asp-for="Account.PickupDay" class="col form form-control" asp-items="new SelectList(new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday })"></select>             
             </div>
-           
+            <label class="row form-group" style="margin-bottom:16px; margin-left: 0px"><strong>Temporarily suspend your service below:</strong>
+            </label>
+            <div class="row form-group" style="margin-bottom: 16px">
+                <label class="col form control-label">Start Date:</label>
+                <input asp-for="Account.StartSuspension" class="form-control col form" />
+            </div>
+            <div class="row form-group" style="margin-bottom: 16px">
+                <label class="col form control-label">End Date:</label>
+                <input asp-for="Account.EndSuspension" class="form-control col form" />
+            </div>                     
+            <div class="row form-group" style="margin-bottom: 16px">                
+                <label class="col form control-label">Schedule a One-Time Pick Up</label>             
+                <input asp-for="Account.OneTimePickup" class="col form form-control" />
+            </div>
+
+
+
+
             <div class="form-group">
-                <input type="submit" value="Save changes" class="btn btn-outline-primary btn-sm" style="margin-top: 20px"/>
+                <input type="submit" value="Save changes" class="btn btn-outline-primary btn-sm" style="margin-top: 20px" />
             </div>
         </form>
     </div>
