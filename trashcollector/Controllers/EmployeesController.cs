@@ -66,10 +66,14 @@ namespace trashcollector.Controllers
             var newViewModel = new EmployeeViewModel();
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var employee = _context.Employees.FirstOrDefault(e => e.UserId == userId);
-            var customers = _context.Customers.Where(c => c.Address.zipCode == employee.ZipCode &&
+            var customers = _context.Customers
+                                .Include(c => c.Address)
+                                .Include(c => c.Account)
+                                .ToList();
+            customers = customers.Where(c => c.Address.zipCode == employee.ZipCode &&
                                                     c.Account.IsSuspended == false &&
                                                     c.Account.PickupDay == viewModel.Day).ToList();
-
+            
             newViewModel.Customers = customers;
             newViewModel.Employee = employee;
             newViewModel.Day = viewModel.Day;
