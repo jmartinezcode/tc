@@ -113,6 +113,10 @@ namespace trashcollector.Controllers
                 viewModel.Account.StartSuspension = accountFromDb.LastPickupDate;
             }
             accountFromDb.StartSuspension = viewModel.Account.StartSuspension;
+            if (viewModel.Account.EndSuspension < accountFromDb.StartSuspension)
+            {
+                viewModel.Account.EndSuspension = accountFromDb.StartSuspension;
+            }
             accountFromDb.EndSuspension = viewModel.Account.EndSuspension;
             _context.Accounts.Update(accountFromDb);
             _context.SaveChanges();
