@@ -113,36 +113,6 @@ namespace trashcollector.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Employees/Edit/5
-        //public IActionResult Edit()
-        //{
-        //    var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        //    if (userId == null)
-        //    {
-        //        return NotFound();
-        //    }            
-        //    var employee = _context.Employees.FirstOrDefault(e => e.UserId == userId);
-        //    if (employee == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    var viewModel = new EmployeeViewModel();
-
-        //    //var customers = _context.Customers
-        //    //                    .Include(c => c.Address)
-        //    //                    .Include(c => c.Account)
-        //    //                    .ToList();
-
-        //    //customers = customers.Where(c => c.Address.zipCode == employee.ZipCode && 
-        //    //                        c.Account.IsSuspended == false &&
-        //    //                        (c.Account.PickupDay == DateTime.Today.DayOfWeek ||
-        //    //                         c.Account.OneTimePickup == DateTime.Today)).ToList();
-                                       
-        //    viewModel.Employee = employee;
-        //    //viewModel.Customers = customers;            
-            
-        //    return View(viewModel);
-        //}
         public IActionResult ConfirmPickup(int? id)
         {
             var customer = _context.Customers.FirstOrDefault(c=> c.Id == id);
@@ -153,13 +123,6 @@ namespace trashcollector.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Employees/Edit
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult Edit(EmployeeViewModel employee)
-        //{
-        //    return RedirectToAction(nameof(Index));
-        //}
         private bool EmployeeExists(int id)
         {
             return _context.Employees.Any(e => e.Id == id);

@@ -33,7 +33,44 @@
         
     </dl>
 </div>
-<div>
-    @*<a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |*@
-    <a asp-action="Index">Back to List</a>
-</div>
+
+<script>
+    var geocoder;
+    var map;
+    function initialize() {
+        geocoder = new google.maps.Geocoder();
+        var latlng = new google.maps.LatLng(35.0844, -106.6504); //This is from https://developers.google.com/maps/documentation/javascript/geocoding#GeocodingRequests
+        var mapOptions = {
+            zoom: 15,
+            center: latlng
+        }
+        map = new google.maps.Map(document.getElementById('map'), mapOptions);
+        codeAddress();
+    }
+
+    function codeAddress() {
+        var address = "@Model.Address.Street + @Model.Address.City + @Model.Address.State";
+        geocoder.geocode( { 'address': address}, function(results, status) {
+            if (status == 'OK') {
+                map.setCenter(results[0].geometry.location);
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: results[0].geometry.location
+                });
+            } else {
+                alert('Geocode was not successful for the following reason: ' + status);
+            }
+        });
+    }
+</script>
+<body onload="initialize()">
+    <div id="map"></div>
+</body>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=">
+</script>
+
+    <div>
+        @*<a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |*@
+        <a asp-action="Index">Back to List</a>
+    </div>
