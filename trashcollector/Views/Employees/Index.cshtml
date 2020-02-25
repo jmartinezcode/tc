@@ -26,56 +26,99 @@
 }
 else
 {
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                First Name
-            </th>
-            <th>
-                Last Name
-            </th>
-            <th>
-                Street Address
-            </th>
-            <th>
-                Last Pickup Date
-            </th>
-
-            <th>Confirm Pickup</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @foreach (var item in Model.Customers)
-        {
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FirstName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LastName)
-                </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Address.Street)</a>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Account.LastPickupDate)
-                </td>
-                <td>
-                    @if (item.Account.LastPickupDate != DateTime.Today && item.Account.PickupDay == DateTime.Today.DayOfWeek)
-                    {
-                        <a class="btn btn-outline-primary btn-sm" asp-action="ConfirmPickup" asp-route-id="@item.Id">
-                            Confirm Pickup
-                        </a>
-                    }
+                <th>
+                    First Name
+                </th>
+                <th>
+                    Last Name
+                </th>
+                <th>
+                    Street Address
+                </th>
+                <th>
+                    Last Pickup Date
+                </th>
 
-                </td>
+                <th>Confirm Pickup</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model.Customers)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FirstName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LastName)
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Address.Street)</a>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Account.LastPickupDate)
+                    </td>
+                    <td>
+                        @if (item.Account.LastPickupDate != DateTime.Today && item.Account.PickupDay == DateTime.Today.DayOfWeek)
+                        {
+                            <a class="btn btn-outline-primary btn-sm" asp-action="ConfirmPickup" asp-route-id="@item.Id">
+                                Confirm Pickup
+                            </a>
+                        }
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
+<script>
+    var geocoder;
+    var map;
+    function initialize() {
+        geocoder = new google.maps.Geocoder();
+        var latlng = new google.maps.LatLng(35.0844, -106.6504); //This is from https://developers.google.com/maps/documentation/javascript/geocoding#GeocodingRequests
+        var mapOptions = {
+            zoom: 15,
+            center: latlng
+        }
+        map = new google.maps.Map(document.getElementById('map'), mapOptions);
+        codeAddress();
+    }
+
+    function codeAddress() {
+        var addresses = [];
+        @foreach (var customer in Model.Customers)
+        {
+            @:addresses.push("@customer.Address.Street + @customer.Address.City + @customer.Address.State")
+        }
+        for (var i = 0; i < @Model.Customers.Count; i++) {
+            var address = address[i];
+            geocoder.geocode( { 'address': address}, function(results, status) {
+                if (status == 'OK') {
+                    map.setCenter(results[0].geometry.location);
+                    var marker = new google.maps.Marker({
+                        map: map,
+                        position: results[0].geometry.location
+                    });
+                } else {
+                    alert('Geocode was not successful for the following reason: ' + status);
+                }
+            });
+        }
+    }
+</script>
+<body onload="initialize()">
+    <div id="map"></div>
+</body>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key= + @API_KEYS.GoogleAPI">
+</script>
+
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
